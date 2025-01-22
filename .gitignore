@@ -1,4 +1,23 @@
-node_modules
-package-lock.json
-package.json
+# Node.js dependencies
+node_modules/
+
+# Environment variables
 .env
+serviceAccountKey.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE/editor settings
+.vscode/
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Optional: Ignore build files if any
+dist/
+build/
