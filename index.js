@@ -5,6 +5,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const db = require('./firebaseConfig'); 
 const schedule = require('node-schedule');
 const config = require('./config');
+const http = require('http');
 
 // Check if environment variables are loaded
 console.log('Environment check:');
@@ -403,6 +404,23 @@ async function runBot() {
         }
     }
 }
+
+// Create HTTP server for health checks
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+        status: 'OK',
+        message: 'AI Twitter Bot is running! 🤖',
+        timestamp: new Date().toISOString(),
+        provider: config.aiProvider,
+        uptime: process.uptime()
+    }));
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`🌐 Health check server running on port ${PORT}`);
+});
 
 // Schedule regular bot activities
 console.log('Starting AI-powered bot with Gemini...');
