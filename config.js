@@ -72,7 +72,7 @@ module.exports = {
         "github", "stackoverflow", "techcrunch", "verge",
         
         // Add your own targets here
-        "your_target_account1", "your_target_account2"
+        "Habib_devv", "your_target_account2"
     ],
 
     // Hashtags to use
