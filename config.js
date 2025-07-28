@@ -6,12 +6,33 @@ module.exports = {
         description: "A comprehensive Twitter bot with quotes, tech news, polls, threads, and engagement features"
     },
 
+    // AI Provider Configuration
+    aiProvider: "gemini", // "openai" or "gemini"
+
     // OpenAI Configuration - Optimized for Free Tier
     openai: {
         model: "gpt-4o-mini", // Most cost-effective model
         maxTokens: 500, // Reduced from 1000 to save tokens
         temperature: 0.7, // Slightly lower for more consistent output
         maxRetries: 2 // Reduced retries to save API calls
+    },
+
+    // Google Gemini Configuration
+    gemini: {
+        model: "gemini-1.5-flash", // Fast and efficient model
+        maxTokens: 500,
+        temperature: 0.7,
+        maxRetries: 2,
+        safetySettings: [
+            {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+        ]
     },
 
     // AI Prompts - Optimized for shorter responses
@@ -72,7 +93,7 @@ module.exports = {
         "github", "stackoverflow", "techcrunch", "verge",
         
         // Add your own targets here
-        "Habib_devv", "your_target_account2"
+        "Habib_devv", "fkrgohard"
     ],
 
     // Hashtags to use

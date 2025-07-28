@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { TwitterApi } = require('twitter-api-v2');
 const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const db = require('./firebaseConfig'); 
 const schedule = require('node-schedule');
 const config = require('./config');
@@ -12,6 +13,7 @@ console.log('TWITTER_API_SECRET:', process.env.TWITTER_API_SECRET ? '✓ Set' : 
 console.log('TWITTER_ACCESS_TOKEN:', process.env.TWITTER_ACCESS_TOKEN ? '✓ Set' : '✗ Missing');
 console.log('TWITTER_ACCESS_SECRET:', process.env.TWITTER_ACCESS_SECRET ? '✓ Set' : '✗ Missing');
 console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? '✓ Set' : '✗ Missing');
+console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? '✓ Set' : '✗ Missing');
 
 const client = new TwitterApi({
   appKey: process.env.TWITTER_API_KEY,
@@ -20,52 +22,152 @@ const client = new TwitterApi({
   accessSecret: process.env.TWITTER_ACCESS_SECRET,
 });
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize AI providers
+let openai = null;
+let gemini = null;
+
+if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+    });
+}
+
+if (process.env.GEMINI_API_KEY) {
+    gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+}
 
 // Target accounts to engage with
 const targetAccounts = config.targetAccounts;
 
-// Function to generate content using OpenAI
+// Function to generate content using AI (supports both OpenAI and Gemini)
 async function generateAIContent(type) {
     try {
-        console.log(`🤖 Generating ${type} content with AI...`);
+        console.log(`🤖 Generating ${type} content with ${config.aiProvider.toUpperCase()}...`);
         
         const prompt = config.aiPrompts[type];
-        const response = await openai.chat.completions.create({
-            model: config.openai.model,
-            messages: [
-                {
-                    role: "system",
-                    content: `You are a Twitter bot that creates engaging content for developers and tech enthusiasts. Be creative, informative, and authentic.`
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
-            max_tokens: config.openai.maxTokens,
-            temperature: config.openai.temperature,
-        });
+        let content = null;
+        let modelUsed = null;
 
-        const content = response.choices[0].message.content.trim();
-        console.log(`✅ AI generated ${type}:`, content);
+        // Try Gemini first (if configured as primary)
+        if (config.aiProvider === 'gemini' && gemini) {
+            try {
+                const geminiModel = gemini.getGenerativeModel({
+                    model: config.gemini.model,
+                    generationConfig: {
+                        maxOutputTokens: config.gemini.maxTokens,
+                        temperature: config.gemini.temperature,
+                    },
+                    safetySettings: config.gemini.safetySettings,
+                });
+
+                const result = await geminiModel.generateContent(prompt);
+                content = result.response.text().trim();
+                modelUsed = `gemini-${config.gemini.model}`;
+                console.log(`✅ Gemini generated ${type}:`, content);
+            } catch (error) {
+                console.log(`⚠️ Gemini failed, trying OpenAI...`);
+            }
+        }
+
+        // Try OpenAI if Gemini failed or not configured
+        if (!content && openai) {
+            try {
+                const response = await openai.chat.completions.create({
+                    model: config.openai.model,
+                    messages: [
+                        {
+                            role: "system",
+                            content: `You are a Twitter bot that creates engaging content for developers and tech enthusiasts. Be creative, informative, and authentic.`
+                        },
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: config.openai.maxTokens,
+                    temperature: config.openai.temperature,
+                });
+
+                content = response.choices[0].message.content.trim();
+                modelUsed = `openai-${config.openai.model}`;
+                console.log(`✅ OpenAI generated ${type}:`, content);
+            } catch (error) {
+                console.log(`⚠️ OpenAI failed:`, error.message);
+            }
+        }
+
+        // Fallback content if both AI providers fail
+        if (!content) {
+            console.log(`❌ Both AI providers failed, using fallback content`);
+            content = getFallbackContent(type);
+            modelUsed = 'fallback';
+        }
         
         // Save AI generation to Firebase
         await db.collection('ai_generations').add({
             type,
             prompt,
             content,
-            model: config.openai.model,
+            model: modelUsed,
+            provider: config.aiProvider,
             createdAt: new Date().toISOString(),
         });
 
         return content;
     } catch (error) {
         console.error(`❌ Error generating ${type} with AI:`, error.message);
-        return null;
+        return getFallbackContent(type);
+    }
+}
+
+// Fallback content function
+function getFallbackContent(type) {
+    const fallbackContent = {
+        quotes: [
+            '"The best code is the code that never needs to be written." - Ada Lovelace',
+            '"Innovation distinguishes between a leader and a follower." - Steve Jobs',
+            '"Stay hungry, stay foolish." - Steve Jobs',
+            '"The future belongs to those who believe in the beauty of their dreams." - Eleanor Roosevelt'
+        ],
+        techNews: [
+            '🚀 New AI breakthrough in machine learning! #AI #Tech',
+            '💻 Revolutionary programming language released! #Programming #Innovation',
+            '🔒 Major cybersecurity update available! #Security #Tech',
+            '☁️ Cloud computing reaches new heights! #Cloud #Technology'
+        ],
+        polls: {
+            questions: [
+                "What's your favorite programming language?",
+                "Which tech trend excites you most?",
+                "What's your preferred development environment?",
+                "Which AI tool do you find most useful?"
+            ],
+            options: [
+                ["JavaScript", "Python", "Java", "C++"],
+                ["AI/ML", "Web3", "Cloud", "Cybersecurity"],
+                ["VS Code", "IntelliJ", "Vim", "Sublime"],
+                ["ChatGPT", "GitHub Copilot", "Claude", "Bard"]
+            ]
+        },
+        threads: [
+            "🚀 3 Essential Tips for New Developers\n\n1️⃣ Start with fundamentals\n2️⃣ Build real projects\n3️⃣ Join communities",
+            "🤖 AI Tools Every Developer Should Know\n\n1️⃣ GitHub Copilot\n2️⃣ ChatGPT\n3️⃣ Claude",
+            "💡 Productivity Hacks for Developers\n\n1️⃣ Use keyboard shortcuts\n2️⃣ Set up good tools\n3️⃣ Take breaks"
+        ]
+    };
+
+    switch (type) {
+        case 'quotes':
+            return fallbackContent.quotes[Math.floor(Math.random() * fallbackContent.quotes.length)];
+        case 'techNews':
+            return fallbackContent.techNews[Math.floor(Math.random() * fallbackContent.techNews.length)];
+        case 'polls':
+            const pollIndex = Math.floor(Math.random() * fallbackContent.polls.questions.length);
+            return `Question: ${fallbackContent.polls.questions[pollIndex]}\nOptions: ${JSON.stringify(fallbackContent.polls.options[pollIndex])}`;
+        case 'threads':
+            return fallbackContent.threads[Math.floor(Math.random() * fallbackContent.threads.length)];
+        default:
+            return "🤖 AI-powered content coming soon! #Tech #Innovation";
     }
 }
 
@@ -303,12 +405,12 @@ async function runBot() {
 }
 
 // Schedule regular bot activities
-console.log('Starting AI-powered bot...');
+console.log('Starting AI-powered bot with Gemini...');
 
 // Initial post
-postTweet('🤖 Hello Twitter! I\'m your new AI-powered multi-functional bot! I generate quotes, tech news, polls, and threads using OpenAI! #TwitterBot #AI #Tech');
+postTweet('🤖 Hello Twitter! I\'m your new AI-powered multi-functional bot! I generate quotes, tech news, polls, and threads using Google Gemini! #TwitterBot #AI #Tech #Gemini');
 
-// Schedule bot activities every 2 hours
+// Schedule bot activities every 4 hours
 schedule.scheduleJob(config.schedule.mainActivity, () => {
     console.log('⏰ Scheduled bot activity triggered');
     runBot();
@@ -342,10 +444,10 @@ schedule.scheduleJob(config.schedule.communityEngagement, () => {
 
 console.log('🤖 AI Bot is running and will execute scheduled activities...');
 console.log('📅 Schedule:');
-console.log('  - Every 2 hours: Random AI bot activity');
+console.log('  - Every 4 hours: Random AI bot activity');
 console.log('  - 9 AM: Morning AI quote');
 console.log('  - 12 PM: AI-generated poll');
 console.log('  - 3 PM: AI-generated thread');
 console.log('  - 6 PM: AI tech news');
-console.log('  - Every 4 hours: Community engagement');
-console.log('🤖 All content is now AI-generated using OpenAI!');
+console.log('  - Every 6 hours: Community engagement');
+console.log(`🤖 Using ${config.aiProvider.toUpperCase()} for AI content generation!`);

@@ -1,14 +1,15 @@
 # 🤖 AI Multi-Functional Twitter Bot
 
-A comprehensive, **AI-powered** Twitter bot that uses OpenAI to generate quotes, tech news, polls, threads, and engage with the community automatically.
+A comprehensive, **AI-powered** Twitter bot that uses **Google Gemini** (with OpenAI fallback) to generate quotes, tech news, polls, threads, and engage with the community automatically.
 
 ## ✨ Features
 
 ### 🤖 **AI-Powered Content Generation**
-- **OpenAI Integration**: All content is generated using GPT-4o-mini
+- **Google Gemini Integration**: Primary AI provider with generous free tier
+- **OpenAI Fallback**: Automatic fallback if Gemini fails
+- **Fallback Content**: Static content if both AI providers fail
 - **Dynamic Content**: No more static content - every post is unique and fresh
 - **Intelligent Prompts**: Carefully crafted prompts for each content type
-- **Cost Efficient**: Uses GPT-4o-mini for optimal performance/cost ratio
 
 ### 📚 **AI Quote Bot**
 - **Dynamic Quotes**: AI generates inspirational quotes about technology and innovation
@@ -47,8 +48,9 @@ TWITTER_API_SECRET=your_twitter_api_secret
 TWITTER_ACCESS_TOKEN=your_access_token
 TWITTER_ACCESS_SECRET=your_access_token_secret
 
-# OpenAI API Key
-OPENAI_API_KEY=your_openai_api_key
+# AI Provider API Keys (at least one required)
+GEMINI_API_KEY=your_gemini_api_key
+OPENAI_API_KEY=your_openai_api_key  # Optional fallback
 ```
 
 ### 2. Install Dependencies
@@ -69,24 +71,39 @@ node index.js
 
 The bot runs on a smart schedule with AI-generated content:
 
-- **Every 2 hours**: Random AI bot activity (weighted selection)
+- **Every 4 hours**: Random AI bot activity (weighted selection)
 - **9 AM**: Morning AI-generated inspirational quote
 - **12 PM**: AI-generated poll
 - **3 PM**: AI-generated educational thread
 - **6 PM**: AI-generated tech news
-- **Every 4 hours**: Community engagement
+- **Every 6 hours**: Community engagement
 
 ## ⚙️ AI Configuration
 
 Edit `config.js` to customize AI behavior:
 
-### OpenAI Settings
+### AI Provider Selection
+```javascript
+aiProvider: "gemini", // "openai" or "gemini"
+```
+
+### Google Gemini Settings
+```javascript
+gemini: {
+    model: "gemini-1.5-flash", // Fast and efficient model
+    maxTokens: 500,
+    temperature: 0.7,
+    maxRetries: 2
+}
+```
+
+### OpenAI Settings (Fallback)
 ```javascript
 openai: {
-    model: "gpt-4o-mini", // or "gpt-3.5-turbo" for cost efficiency
-    maxTokens: 1000,
-    temperature: 0.8, // Creative but not too random
-    maxRetries: 3
+    model: "gpt-4o-mini",
+    maxTokens: 500,
+    temperature: 0.7,
+    maxRetries: 2
 }
 ```
 
@@ -129,6 +146,11 @@ What's your favorite programming language for AI development?
 
 ## 🔧 Customization
 
+### Switch AI Providers
+Change `aiProvider` in `config.js`:
+- `"gemini"` - Use Google Gemini (recommended)
+- `"openai"` - Use OpenAI (if you have credits)
+
 ### Modify AI Prompts
 Edit the `aiPrompts` section in `config.js` to change how AI generates content.
 
@@ -136,11 +158,11 @@ Edit the `aiPrompts` section in `config.js` to change how AI generates content.
 Change the frequency of different content types:
 ```javascript
 weights: {
-    quote: 2,      // More quotes
-    techNews: 2,   // More news
-    poll: 1,       // Fewer polls
-    thread: 1,     // Fewer threads
-    engagement: 3  // More engagement
+    quote: 3,        // More quotes (cheaper)
+    techNews: 2,     // Moderate news
+    poll: 1,         // Fewer polls (more complex)
+    thread: 1,       // Fewer threads (more tokens)
+    engagement: 4    // More engagement (no AI cost)
 }
 ```
 
@@ -151,7 +173,7 @@ Edit the `targetAccounts` array to engage with your preferred accounts.
 
 The bot saves all AI-generated content to Firebase:
 
-- **AI Generations**: All OpenAI prompts and responses
+- **AI Generations**: All AI prompts and responses with provider info
 - **Tweets**: All posted content with AI generation metadata
 - **Polls**: AI-generated poll questions and results
 - **Threads**: AI-generated thread content
@@ -159,42 +181,67 @@ The bot saves all AI-generated content to Firebase:
 
 ## 💰 Cost Management
 
-### OpenAI Usage
-- **Model**: GPT-4o-mini (cost-effective)
-- **Tokens**: Limited to 1000 per generation
-- **Frequency**: Controlled scheduling prevents excessive usage
-- **Monitoring**: All API calls are logged
+### Google Gemini (Recommended)
+- **Free Tier**: 15 requests per minute
+- **Generous Daily Limits**: Much more than OpenAI
+- **High Quality**: Latest Gemini model
+- **No Credit Card**: Required initially
+
+### OpenAI (Fallback)
+- **Free Tier**: $5 credit for 3 months
+- **Cost**: ~$0.0015 per post
+- **Quality**: Excellent but limited free tier
 
 ### Cost Optimization Tips
-1. Use `gpt-3.5-turbo` instead of `gpt-4o-mini` for lower costs
-2. Reduce `maxTokens` in config
-3. Adjust scheduling frequency
-4. Monitor usage in OpenAI dashboard
+1. Use **Gemini as primary** (better free tier)
+2. Keep **OpenAI as fallback** only
+3. Monitor usage in respective dashboards
+4. Adjust scheduling frequency if needed
 
 ## 🛡️ Safety Features
 
 - **Content Filtering**: AI prompts ensure appropriate content
 - **Rate Limiting**: Built-in delays to avoid API limits
 - **Error Handling**: Comprehensive error catching and logging
-- **Fallback Content**: Backup content if AI fails
+- **Fallback Content**: Static content if AI fails
 - **Engagement Limits**: Controlled interaction frequency
+- **Safety Settings**: Built-in content safety filters
 
 ## 🚨 Important Notes
 
-1. **OpenAI API Key**: Required for AI content generation
-2. **API Costs**: Monitor your OpenAI usage and costs
-3. **Content Quality**: AI-generated content is reviewed but may need monitoring
-4. **Rate Limits**: Respect both Twitter and OpenAI rate limits
-5. **Backup Content**: Consider having fallback content if AI is unavailable
+1. **Gemini API Key**: Required for primary AI functionality
+2. **OpenAI API Key**: Optional for fallback
+3. **API Costs**: Monitor your usage and costs
+4. **Content Quality**: AI-generated content is reviewed but may need monitoring
+5. **Rate Limits**: Respect both Twitter and AI provider limits
+6. **Fallback System**: Bot works even if AI providers fail
+
+## 🧪 Testing
+
+### Test Gemini Connection
+```bash
+node test-gemini.js
+```
+
+### Test OpenAI Connection
+```bash
+node test-ai.js
+```
+
+### Test Full Bot
+```bash
+node index.js
+```
 
 ## 🔮 Future Enhancements
 
 - **Real-time news API integration** with AI summarization
-- **Image generation** using DALL-E
+- **Image generation** using DALL-E or Gemini Vision
 - **Advanced analytics dashboard** for AI performance
 - **Web interface** for bot management
 - **Multi-language support** using AI translation
 - **Sentiment analysis** for better engagement
+- **Local AI models** (Ollama) for complete privacy
 
 ## 📝 License
 
@@ -206,4 +253,4 @@ Feel free to submit issues and enhancement requests!
 
 ---
 
-**Happy AI Botting! 🤖✨** 
+**Happy AI Botting with Gemini! 🤖✨** 
