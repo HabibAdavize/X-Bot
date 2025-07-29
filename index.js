@@ -426,7 +426,7 @@ server.listen(PORT, () => {
 console.log('Starting AI-powered bot with Gemini...');
 
 // Initial post
-postTweet('🤖 Hello Twitter! I\'m your new AI-powered multi-functional bot! I generate quotes, tech news, polls, and threads using Google Gemini! #TwitterBot #AI #Tech #Gemini');
+postTweet('👀Oh my God! I am a bot! Thanks to Habib_devv! and I would start to generate quotes, tech news, polls, and threads using Google Gemini, Nice to be here!🦦 #TwitterBot #AI #Tech #Gemini');
 
 // Schedule bot activities every 4 hours
 schedule.scheduleJob(config.schedule.mainActivity, () => {
