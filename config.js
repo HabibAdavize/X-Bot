@@ -1,127 +1,137 @@
 module.exports = {
-    // Bot behavior settings
-    botSettings: {
-        name: "AI Multi-Functional Bot",
-        version: "2.0",
-        description: "A comprehensive Twitter bot with quotes, tech news, polls, threads, and engagement features"
-    },
+  // Bot behavior settings
+  botSettings: {
+    name: "Web3 Community Yapper Bot",
+    version: "3.0",
+    description:
+      "A chatty, friendly, always-engaging Web3/crypto community bot. Posts facts, news, polls, threads, and more.",
+  },
 
-    // AI Provider Configuration
-    aiProvider: "gemini", // "openai" or "gemini"
+  // AI Provider Configuration
+  aiProvider: "gemini", // "openai" or "gemini"
 
-    // OpenAI Configuration - Optimized for Free Tier
-    openai: {
-        model: "gpt-4o-mini", // Most cost-effective model
-        maxTokens: 500, // Reduced from 1000 to save tokens
-        temperature: 0.7, // Slightly lower for more consistent output
-        maxRetries: 2 // Reduced retries to save API calls
-    },
+  // OpenAI Configuration
+  openai: {
+    model: "gpt-4o-mini",
+    maxTokens: 500,
+    temperature: 0.7,
+    maxRetries: 2,
+  },
 
-    // Google Gemini Configuration
-    gemini: {
-        model: "gemini-1.5-flash", // Fast and efficient model
-        maxTokens: 500,
-        temperature: 0.7,
-        maxRetries: 2,
-        safetySettings: [
-            {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                category: "HARM_CATEGORY_HATE_SPEECH",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-            }
-        ]
-    },
-
-    // AI Prompts - Optimized for shorter responses
-    aiPrompts: {
-        quotes: `Generate a short inspirational quote about technology or programming. 
-        Format: "Quote text" - Author Name
-        Keep it under 100 words. Make it relevant to developers.`,
-
-        techNews: `Generate a short tech news headline about AI, programming, or software. 
-        Make it sound like breaking news. Include 2-3 hashtags.
-        Format: "🚀 [Headline] #hashtag1 #hashtag2"
-        Keep it under 150 characters.`,
-
-        polls: `Generate a tech poll question with 4 short options. 
-        Make it engaging for developers.
-        Format: 
-        Question: "What's your favorite..."
-        Options: ["Option 1", "Option 2", "Option 3", "Option 4"]
-        Keep each option under 20 characters.`,
-
-        threads: `Generate a 3-tweet educational thread about a tech topic. 
-        Topics: programming tips, AI tools, productivity.
-        Make each tweet short and engaging. Number them 1️⃣, 2️⃣, 3️⃣.
-        Start with a title and emoji. Keep each tweet under 200 characters.`
-    },
-
-    // Scheduling configuration - Reduced frequency for free tier
-    schedule: {
-        // Main bot activity (every 4 hours instead of 2)
-        mainActivity: '0 */4 * * *',
-        
-        // Specific activities - reduced frequency
-        morningQuote: '0 9 * * *',
-        lunchPoll: '0 12 * * *',
-        afternoonThread: '0 15 * * *',
-        eveningNews: '0 18 * * *',
-        communityEngagement: '0 */6 * * *' // Every 6 hours instead of 4
-    },
-
-    // Content weights - Adjusted for free tier
-    weights: {
-        quote: 3,        // More quotes (cheaper)
-        techNews: 2,     // Moderate news
-        poll: 1,         // Fewer polls (more complex)
-        thread: 1,       // Fewer threads (more tokens)
-        engagement: 4    // More engagement (no AI cost)
-    },
-
-    // Target accounts for engagement
-    targetAccounts: [
-        // Tech leaders
-        "elonmusk", "sundarpichai", "satyanadella", "tim_cook",
-        
-        // Tech companies
-        "OpenAI", "Google", "Microsoft", "Apple",
-        
-        // Developer platforms
-        "github", "stackoverflow", "techcrunch", "verge",
-        
-        // Add your own targets here
-        "Habib_devv", "fkrgohard"
+  // Google Gemini Configuration
+  gemini: {
+    model: "gemini-1.5-flash",
+    maxTokens: 500,
+    temperature: 0.7,
+    maxRetries: 2,
+    safetySettings: [
+      {
+        category: "HARM_CATEGORY_HARASSMENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE",
+      },
+      {
+        category: "HARM_CATEGORY_HATE_SPEECH",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE",
+      },
     ],
+  },
 
-    // Hashtags to use
-    hashtags: {
-        default: ["#TwitterBot", "#AI", "#Tech"],
-        quotes: ["#quotes", "#inspiration", "#motivation"],
-        tech: ["#tech", "#innovation", "#programming"],
-        polls: ["#poll", "#tech", "#community"],
-        threads: ["#thread", "#tech", "#tips"]
-    },
+  // AI Prompts - Web3, blockchain, crypto, real-life facts, events, education
+  aiPrompts: {
+    quotes: `Generate a short, inspirational, or fun quote or fact about blockchain, Web3, crypto, or real-life. It can be a motivational quote, a surprising fact, or a myth-busting statement. Make it relevant to the Web3/crypto community. Format: "Quote or fact" - Author or Source. Keep it under 100 words.`,
 
-    // Poll settings
-    pollSettings: {
-        durationMinutes: 1440, // 24 hours
-        maxOptions: 4
-    },
+    techNews: `Generate a short, news-style update or trending topic in the Web3, blockchain, or crypto space. It can be about a new project, a major event, a protocol upgrade, a hack, a partnership, or a real-life application of blockchain. Include 2-3 relevant hashtags. Format: "🚀 [Headline or update] #web3 #blockchain #crypto". Keep it under 150 characters.`,
 
-    // Thread settings - Reduced for free tier
-    threadSettings: {
-        delayBetweenTweets: 2000, // 2 seconds
-        maxTweetsPerThread: 3 // Reduced from 5 to 3
-    },
+    polls: `Generate a poll question for the Web3/crypto community. It can be about blockchain, NFTs, DeFi, DAOs, crypto adoption, or real-life use cases. Provide 4 short, engaging options. Format: Question: "..." Options: ["Option 1", "Option 2", "Option 3", "Option 4"] Each option under 20 characters.`,
 
-    // Engagement settings
-    engagementSettings: {
-        maxTweetsToCheck: 5,
-        likeProbability: 0.8, // 80% chance to like
-        retweetProbability: 0.6, // 60% chance to retweet
-        replyProbability: 0.3 // 30% chance to reply
-    }
-}; 
+    threads: `Generate a 3-tweet educational or discussion thread for the Web3/crypto community. Topics: blockchain basics, DeFi, NFTs, DAOs, real-life blockchain use, security tips, event summaries, myth-busting, or trending topics. Each tweet should be short, engaging, and numbered 1️⃣, 2️⃣, 3️⃣. Start with a catchy title and emoji. Each tweet under 200 characters.`,
+  },
+
+  // Scheduling configuration
+  schedule: {
+    mainActivity: "0 */4 * * *",
+    morningQuote: "0 9 * * *",
+    lunchPoll: "0 12 * * *",
+    afternoonThread: "0 15 * * *",
+    eveningNews: "0 18 * * *",
+    communityEngagement: "0 */6 * * *",
+  },
+
+  // Content weights
+  weights: {
+    quote: 2,
+    techNews: 2,
+    poll: 1,
+    thread: 1,
+    engagement: 4,
+  },
+
+  // Target accounts for engagement (Web3/crypto influencers, projects, news)
+  targetAccounts: [
+    "VitalikButerin",
+    "aantonop",
+    "balajis",
+    "naval",
+    "cz_binance",
+    "brian_armstrong",
+    "ethereum",
+    "solana",
+    "chainlink",
+    "Uniswap",
+    "coindesk",
+    "cointelegraph",
+    "TheBlock__",
+    "web3foundation",
+    "defipulse",
+    "nftnow",
+    "0xPolygonLabs",
+    "LensProtocol",
+    "BanklessHQ",
+    "MessariCrypto",
+    "LayerZero_Labs",
+    "Habib_devv",
+    "fkrgohard",
+  ],
+
+  // Hashtags to use (Web3/crypto focus)
+  hashtags: {
+    default: [
+      "#Web3",
+      "#Crypto",
+      "#Blockchain",
+      "#DeFi",
+      "#NFTs",
+      "#CryptoCommunity",
+    ],
+    quotes: ["#Web3", "#Crypto", "#Blockchain", "#Motivation", "#DidYouKnow"],
+    tech: ["#Web3", "#Crypto", "#Blockchain", "#DeFi", "#NFTs"],
+    polls: ["#Web3Poll", "#CryptoPoll", "#Blockchain", "#Community"],
+    threads: [
+      "#Web3Thread",
+      "#CryptoEducation",
+      "#Blockchain",
+      "#DeFi",
+      "#NFTs",
+    ],
+  },
+
+  // Poll settings
+  pollSettings: {
+    durationMinutes: 1440,
+    maxOptions: 4,
+  },
+
+  // Thread settings
+  threadSettings: {
+    delayBetweenTweets: 2000,
+    maxTweetsPerThread: 3,
+  },
+
+  // Engagement settings (always engage)
+  engagementSettings: {
+    maxTweetsToCheck: 5,
+    likeProbability: 1.0, // Always like
+    retweetProbability: 1.0, // Always retweet
+    replyProbability: 1.0, // Always reply
+  },
+};

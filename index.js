@@ -340,33 +340,71 @@ async function engageWithAccounts() {
         
         if (tweets.data && tweets.data.length > 0) {
             const randomTweet = tweets.data[Math.floor(Math.random() * tweets.data.length)];
+            const tweetText = randomTweet.text;
             
-            // Like the tweet
-            if (Math.random() < config.engagementSettings.likeProbability) {
-                await client.v2.like(randomTweet.id);
-                console.log(`Liked tweet: ${randomTweet.id}`);
-            }
+            // Always like the tweet
+            await client.v2.like(randomTweet.id);
+            console.log(`Liked tweet: ${randomTweet.id}`);
             
-            // Retweet with comment (quote tweet)
-            if (Math.random() < config.engagementSettings.retweetProbability) {
-                const retweetText = `Great insights! Thanks for sharing @${targetAccount} 🙏\n\n${config.hashtags.default.join(' ')}`;
-                await client.v2.tweet({
-                    text: retweetText,
-                    quote_tweet_id: randomTweet.id
-                });
-                console.log(`Quote tweeted: ${randomTweet.id}`);
-            }
+            // Generate AI-powered quote tweet (retweet with comment)
+            const quotePrompt = `You are a friendly, chatty Web3 community bot. Write a positive, insightful quote tweet (retweet with comment) for this tweet, referencing the content and adding value for the Web3/crypto community. Keep it under 200 characters.\n\nOriginal tweet: "${tweetText}"`;
+            const quoteText = await generateEngagementAI(quotePrompt);
+            await client.v2.tweet({
+                text: quoteText,
+                quote_tweet_id: randomTweet.id
+            });
+            console.log(`Quote tweeted: ${randomTweet.id}`);
             
-            // Save engagement to Firebase
+            // Generate AI-powered reply
+            const replyPrompt = `You are a friendly, chatty Web3 community bot. Write a reply to this tweet that is helpful, engaging, and encourages discussion in the Web3/crypto space. Keep it under 200 characters.\n\nOriginal tweet: "${tweetText}"`;
+            const replyText = await generateEngagementAI(replyPrompt);
+            await client.v2.reply(replyText, randomTweet.id);
+            console.log(`Replied to tweet: ${randomTweet.id}`);
+            
+            // Save engagement to Firebase (or mock)
             await db.collection('engagements').add({
                 targetAccount,
                 tweetId: randomTweet.id,
-                action: 'like_and_quote',
+                action: 'like_retweet_reply',
                 createdAt: new Date().toISOString(),
             });
         }
     } catch (error) {
         console.error('Error engaging with accounts:', error.message);
+    }
+}
+
+// Helper function to generate engagement text using Gemini
+async function generateEngagementAI(prompt) {
+    try {
+        if (gemini) {
+            const geminiModel = gemini.getGenerativeModel({
+                model: config.gemini.model,
+                generationConfig: {
+                    maxOutputTokens: 200,
+                    temperature: config.gemini.temperature,
+                },
+                safetySettings: config.gemini.safetySettings,
+            });
+            const result = await geminiModel.generateContent(prompt);
+            return result.response.text().trim();
+        } else if (openai) {
+            const response = await openai.chat.completions.create({
+                model: config.openai.model,
+                messages: [
+                    { role: "system", content: "You are a friendly, chatty Web3 community bot." },
+                    { role: "user", content: prompt }
+                ],
+                max_tokens: 200,
+                temperature: config.openai.temperature,
+            });
+            return response.choices[0].message.content.trim();
+        } else {
+            return "Love this insight! 🚀 #Web3 #Crypto";
+        }
+    } catch (error) {
+        console.error('Error generating engagement AI:', error.message);
+        return "Great post! #Web3 #Crypto";
     }
 }
 
@@ -426,7 +464,7 @@ server.listen(PORT, () => {
 console.log('Starting AI-powered bot with Gemini...');
 
 // Initial post
-postTweet('👀Oh my God! I am a bot! Thanks to @Habib_devv! and I would start to generate quotes, tech news, polls, and threads using Google Gemini, Nice to be here!🦦 #TwitterBot #AI #Tech #Gemini');
+postTweet('👀🔃');
 
 // Schedule bot activities every 4 hours
 schedule.scheduleJob(config.schedule.mainActivity, () => {
