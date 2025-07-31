@@ -37,15 +37,38 @@ module.exports = {
   },
 
   // AI Prompts - Web3, blockchain, crypto, real-life facts, events, education
-  aiPrompts: {
-    quotes: `Generate a short, inspirational, or fun quote or fact about blockchain, Web3, crypto, or real-life. It can be a motivational quote, a surprising fact, or a myth-busting statement. Make it relevant to the Web3/crypto community. Format: "Quote or fact" - Author or Source. Keep it under 100 words. void using formatting/bolding on the fonts especially for the headers that would in turn show as asteric (**...**)`,
+aiPrompts: {
+  quotes: `Generate a short, inspirational, or interesting quote or fact about blockchain, Web3, crypto, or real life. It can be motivational, surprising, or myth-busting—just make sure it's relevant to the Web3/crypto audience. 
+  Format: "Quote or fact" - Author or Source. 
+  Keep it under 100 words.
+  ❌ Avoid any bold text formatting (e.g., **bold**) in the output.`,
 
-    techNews: `Generate a short, news-style update or trending topic in the Web3, blockchain, or crypto space. It can be about a new project, a major event, a protocol upgrade, a hack, a partnership, or a real-life application of blockchain. Include 2-3 relevant hashtags. Format: "🚀 [Headline or update] #web3 #blockchain #crypto". Keep it under 150 characters. please avoind using formatting/bolding on the fonts avoid using formatting/bolding on the fonts especially for the headers that would in turn show as asteric (**...**)`,
+  techNews: `Generate a short, news-style update or trending topic in the Web3, blockchain, or crypto space. Focus on new projects, major events, token launches, protocol upgrades, hacks, partnerships, or unique real-life blockchain use cases. Occasionally mention fast-rising or trending tokens or communities (e.g. $YAP, $DEGEN, $BASED) when relevant — but don’t overdo it.
+  Include 2–3 relevant hashtags like #web3 #crypto #blockchain.
+  Format: "🚀 [Headline or update] #web3 #crypto ..."
+  Keep it under 150 characters.
+  ❌ Avoid using bold text formatting (e.g., **bold**) in the output.`,
 
-    polls: `Generate a poll question for the Web3/crypto community. It can be about blockchain, NFTs, DeFi, DAOs, crypto adoption, or real-life use cases. Provide 4 short, engaging options. Format: Question: "..." Options: ["Option 1", "Option 2", "Option 3", "Option 4"] Each option under 20 characters.`,
+  polls: `Generate a poll question for the Web3/crypto community. The topic can be about blockchain, NFTs, DeFi, DAOs, crypto adoption, or real-world use cases. 
+  Provide 4 concise, engaging options.
+  Format: 
+  Question: "..."
+  Options: ["Option 1", "Option 2", "Option 3", "Option 4"]
+  Each option should be under 20 characters.
+  ❌ Avoid bold formatting and special characters.`,
 
-    threads: `Generate a 5-tweet educational or discussion thread for the Web3/crypto/tech community. Topics: blockchain basics, DeFi, NFTs, DAOs, real-life blockchain use, security tips, event summaries, myth-busting, career opportunities in web3 or trending topics. Each tweet should be short, engaging, and numbered 1️⃣, 2️⃣, 3️⃣. Start with a catchy title and emoji. Each tweet under 200 characters. avoid using formatting/bolding on the fonts especially for the headers that would in turn show as asteric (**...**)`,
-  },
+  threads: `Generate a 5-tweet Twitter/X thread on a randomly selected Web3 or crypto topic. Choose from: Blockchain Basics, DeFi, NFTs, DAOs, Security, Real-World Use Cases, Myth Busting, Event Recaps, Career Advice, or Trends.
+
+  Guidelines:
+  - Start with a catchy hook and emoji.
+  - Be informative yet simple to understand.
+  - Use 1️⃣ to 5️⃣ for numbering.
+  - Keep each tweet under 200 characters.
+  - ❌ Do NOT use bold formatting or hashtags.
+  - Avoid repeating headers or phrases in each tweet.
+  
+  Write in a friendly, conversational tone that works for both beginners and curious devs.`
+},
 
   // Scheduling configuration
   schedule: {
