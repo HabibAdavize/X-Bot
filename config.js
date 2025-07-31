@@ -146,7 +146,7 @@ aiPrompts: {
 
   // Thread settings
   threadSettings: {
-    delayBetweenTweets: 2000,
+    delayBetweenTweets: 5000,
     maxTweetsPerThread: 5,
   },
 
